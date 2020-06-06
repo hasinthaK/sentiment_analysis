@@ -1,7 +1,6 @@
 import nltk
 import random
 from nltk.corpus import movie_reviews
-import pickle
 from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -9,6 +8,7 @@ from sklearn.svm import SVC, LinearSVC, NuSVC
 import dump
 from nltk.classify import ClassifierI
 from statistics import mode
+from nltk.tokenize import word_tokenize
 
 
 class VoteClassifier(ClassifierI):
@@ -30,7 +30,7 @@ class VoteClassifier(ClassifierI):
 
         choice_votes = votes.count(mode(votes))
         conf = choice_votes / len(votes)
-        return conf
+        return format(conf, ".2%")
 
 
     # for training ----------------------------------------
@@ -38,28 +38,54 @@ class VoteClassifier(ClassifierI):
     # docs = [list(movie_reviews.words(fileid), category)
     #         for category in movie_reviews.categories()
     #         for fileid in movie_reviews.fileids(category)]
-docs = []
+docs = []  # tuple - (review, pos/neg)
+all_words = []
 
-for category in movie_reviews.categories():
-    for fileid in movie_reviews.fileids(category):
-        docs.append((list(movie_reviews.words(fileid)), category))
+# for category in movie_reviews.categories():
+#     for fileid in movie_reviews.fileids(category):
+#         docs.append((list(movie_reviews.words(fileid)), category))
+
+
+# 1 - pos, 0 - neg
+amazon_reviews = open("data_sets/amazon_cells_labelled.txt", "r").read()
+for r in amazon_reviews.split('\n'):
+    tab_splitted = r.split('\t')
+    # all_words.append(w.lower() for w in word_tokenize(tab_splitted[0]))
+    if tab_splitted[1] == '1':
+        docs.append((tab_splitted[0], "pos"))
+    else:
+        docs.append((tab_splitted[0], "neg"))
 
 random.shuffle(docs)
 # ---------------------------------------------------------
+# for w in movie_reviews.words():
+#     all_words.append(w.lower())
 
-# print(docs[1])
+# pos tagging
+# allowed_word_types = ["J", "R", "V"]
 
-all_words = []
+# for r in amazon_reviews.split('\n'):
+#     review = r.split('\t')[0]
+#     words = word_tokenize(review)
+#     pos = nltk.pos_tag(words)
+#     for w in pos:
+#         # w - tuple (word, POS_TAG)
+#         # check first letter of POS_TAG
+#         if w[1][0] in allowed_word_types:
+#             all_words.append(w[0].lower())
 
-for w in movie_reviews.words():
-    all_words.append(w.lower())
+for r in amazon_reviews.split('\n'):
+    review = r.split('\t')[0]
+    words = word_tokenize(review)
+    for w in words:
+        all_words.append(w.lower())
 
 all_words = nltk.FreqDist(all_words)
-# print(all_words.most_common(10))
-# print(all_words["product"])
+print(all_words.most_common(10))
 
 # limit all_words
-word_features = list(all_words.keys())[:4000]
+word_features = list(all_words.keys())[:5000]
+dump.dump(word_features, "word_features")
 
 
 def find_features(doc):
@@ -72,40 +98,36 @@ def find_features(doc):
 
 
 featuresets = [(find_features(rev), category) for (rev, category) in docs]
+dump.dump(featuresets, "featuresets")
+print(len(featuresets))
 
-# featureset - first 1000 -> neg, second 1000 -> pos
-# training_set = featuresets[:1900]
-# testing_set = featuresets[1900:]
-training_set = featuresets[100:]
-testing_set = featuresets[:100]
+training_set = featuresets[:2000]
+testing_set = featuresets[2000:]
+# training_set = featuresets[100:]
+# testing_set = featuresets[:100]
 
 
 # uncomment below line - Initial training
 classifier = nltk.NaiveBayesClassifier.train(training_set)
 # save classifier to a file
 dump.dump(classifier, "naivebayes")
-# load from saved classifier after initial training
-# classifier = dump.loadDump("naivebayes")
 print("naive Bayes accuracy: ", nltk.classify.accuracy(
     classifier, testing_set) * 100)
 # classifier.show_most_informative_features(10)
 
 
-# MultinomialNB, GaussianNB, BernoulliNB
+# MultinomialNB, BernoulliNB
 
 # train & save
 MultinomialNB_classifier = SklearnClassifier(MultinomialNB())
 MultinomialNB_classifier.train(training_set)
 dump.dump(MultinomialNB_classifier, "MNB")
-# load trained & saved file
-# MultinomialNB_classifier = dump.loadDump("MNB")
 print("MultinomialNB_classifier accuracy: ", nltk.classify.accuracy(
     MultinomialNB_classifier, testing_set) * 100)
 
 BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
 BernoulliNB_classifier.train(training_set)
 dump.dump(BernoulliNB_classifier, "BNB")
-# BernoulliNB_classifier = dump.loadDump("BNB")
 print("BernoulliNB_classifier accuracy: ", nltk.classify.accuracy(
     BernoulliNB_classifier, testing_set) * 100)
 
@@ -116,14 +138,12 @@ print("BernoulliNB_classifier accuracy: ", nltk.classify.accuracy(
 # LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
 # LogisticRegression_classifier.train(training_set)
 # dump.dump(LogisticRegression_classifier, "LR")
-# # LogisticRegression_classifier = dump.loadDump("LR")
 # print("LogisticRegression_classifier accuracy: ", nltk.classify.accuracy(
 #     LogisticRegression_classifier, testing_set) * 100)
 
 SGDClassifier_classifier = SklearnClassifier(SGDClassifier())
 SGDClassifier_classifier.train(training_set)
 dump.dump(SGDClassifier_classifier, "SGD")
-# SGDClassifier_classifier = dump.loadDump("SGD")
 print("SGDClassifier_classifier accuracy: ", nltk.classify.accuracy(
     SGDClassifier_classifier, testing_set) * 100)
 
@@ -137,14 +157,12 @@ print("SVC_classifier accuracy: ", nltk.classify.accuracy(
 LinearSVC_classifier = SklearnClassifier(LinearSVC())
 LinearSVC_classifier.train(training_set)
 dump.dump(LinearSVC_classifier, "LinearSVC")
-# LinearSVC_classifier = dump.loadDump("LinearSVC")
 print("LinearSVC_classifier accuracy: ", nltk.classify.accuracy(
     LinearSVC_classifier, testing_set) * 100)
 
 NuSVC_classifier = SklearnClassifier(NuSVC())
 NuSVC_classifier.train(training_set)
 dump.dump(NuSVC_classifier, "NuSVC")
-# NuSVC_classifier = dump.loadDump("NuSVC")
 print("NuSVC_classifier accuracy: ", nltk.classify.accuracy(
     NuSVC_classifier, testing_set) * 100)
 
@@ -163,4 +181,4 @@ print("Voted_classifier accuracy: ", nltk.classify.accuracy(
     voted_classifier, testing_set) * 100)
 
 # print("Classification: ", voted_classifier.classify(
-#     testing_set[0][0]), "Confidence: ", voted_classifier.confidence(testing_set[0][0]) * 100)
+#     testing_set[0][0]), "Confidence: ", voted_classifier.confidence(testing_set[0][0]))
