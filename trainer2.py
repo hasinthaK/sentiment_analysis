@@ -96,7 +96,7 @@ dump.dump(word_features, "word_features")
 
 def find_features(doc):
     # doc - list of words
-    words = set(doc)
+    words = word_tokenize(doc)
     features = {}
     for w in word_features:
         features[w] = (w in words)

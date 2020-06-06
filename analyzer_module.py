@@ -81,6 +81,6 @@ def sentiment(review):
     return voted_classifier.classify(feat), voted_classifier.confidence(feat)
 
 
-text = "Very nice one, Came very quickly, I recommend this seller & also the product, but the service was not the best!"
+# text = "Very nice one, Came very quickly, I recommend this seller & also the product, but the service was not the best!"
 # text = "mazel tov to a film about a family's joyous life acting on the yiddish stage . "
-sentiment(text)
+# sentiment(text)
