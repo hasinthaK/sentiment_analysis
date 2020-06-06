@@ -9,6 +9,7 @@ import dump
 from nltk.classify import ClassifierI
 from statistics import mode
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
 
 class VoteClassifier(ClassifierI):
@@ -69,12 +70,17 @@ voted_classifier = VoteClassifier(
 def sentiment(review):
     cleaned_review = review.translate(
         str.maketrans("", "", string.punctuation))
-    feat = find_features(word_tokenize(cleaned_review))
+    cleaned_review = word_tokenize(cleaned_review)
+    final_words = []
+    for w in cleaned_review:
+        if not w in stopwords.words():
+            final_words.append(w)
+    feat = find_features(final_words)
     print(voted_classifier.classify(feat),
           voted_classifier.confidence(feat))
     return voted_classifier.classify(feat), voted_classifier.confidence(feat)
 
 
-# text = "Very nice one, Came very quickly, I recommend this seller & also the product, but the service was not the best!"
+text = "Very nice one, Came very quickly, I recommend this seller & also the product, but the service was not the best!"
 # text = "mazel tov to a film about a family's joyous life acting on the yiddish stage . "
-# sentiment(text)
+sentiment(text)

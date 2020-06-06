@@ -60,11 +60,11 @@ print("Total reviews for training: ", len(docs))
 
 # no pos tagging---------------------------
 
-for w in movie_reviews.words():
-    if not w in stopwords.words():
-        all_words.append(w.lower())
 # for w in movie_reviews.words():
-#     all_words.append(w.lower())
+#     if not w in stopwords.words():
+#         all_words.append(w.lower())
+for w in movie_reviews.words():
+    all_words.append(w.lower())
 
 all_words = nltk.FreqDist(all_words)
 print("most common words: ", all_words.most_common(10))
