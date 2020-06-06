@@ -32,6 +32,7 @@ class VoteClassifier(ClassifierI):
         conf = choice_votes / len(votes)
         return format(conf, ".2%")
 
+
     # for training ----------------------------------------
     # one liner
     # docs = [list(movie_reviews.words(fileid), category)
@@ -65,34 +66,25 @@ all_words = []
 short_pos = open("data_sets/positive.txt", "r").read()
 short_neg = open("data_sets/negative.txt", "r").read()
 
-for r in short_pos.split('\n'):
-    docs.append((r, "pos"))
-
-for r in short_neg.split('\n'):
-    docs.append((r, "neg"))
-
-print("Total reviews for training: ", len(docs))
-# ---------------------------------------------------------
-# for w in movie_reviews.words():
-#     all_words.append(w.lower())
-
-# pos tagging-----------------------------
-# allowed_word_types = ["J", "R", "V"]
 allowed_word_types = ["J"]
 
-for r in docs:
-    words = word_tokenize(r[0])
+for r in short_pos.split('\n'):
+    docs.append((r, "pos"))
+    words = word_tokenize(r)
     pos = nltk.pos_tag(words)
     for w in pos:
         if w[1][0] in allowed_word_types:
             all_words.append(w[0].lower())
 
-# no pos tagging---------------------------
+for r in short_neg.split('\n'):
+    docs.append((r, "neg"))
+    words = word_tokenize(r)
+    pos = nltk.pos_tag(words)
+    for w in pos:
+        if w[1][0] in allowed_word_types:
+            all_words.append(w[0].lower())
 
-# for r in docs:
-#     words = word_tokenize(r[0])
-#     for w in pos:
-#         all_words.append(w.lower())
+print("Total reviews for training: ", len(docs))
 
 all_words = nltk.FreqDist(all_words)
 print("most common words: ", all_words.most_common(10))
