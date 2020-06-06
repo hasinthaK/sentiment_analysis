@@ -1,6 +1,6 @@
 import nltk
 import random
-from nltk.corpus import movie_reviews
+from nltk.corpus import movie_reviews, stopwords
 from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -40,59 +40,31 @@ class VoteClassifier(ClassifierI):
 docs = []  # tuple - (review, pos/neg)
 all_words = []
 
-# for category in movie_reviews.categories():
-#     for fileid in movie_reviews.fileids(category):
-#         docs.append((list(movie_reviews.words(fileid)), category))
+for category in movie_reviews.categories():
+    for fileid in movie_reviews.fileids(category):
+        docs.append((list(movie_reviews.words(fileid)), category))
 
-
-# DATASET 1
-# 1 - pos, 0 - neg
-# amazon_reviews = open("data_sets/amazon_cells_labelled.txt", "r").read()
-# yelp = open("data_sets/yelp_labelled.txt", "r").read()
-# imdb = open("data_sets/imdb_labelled.txt", "r").read()
-
-# amazon_reviews = amazon_reviews + yelp + imdb
-
-# for r in amazon_reviews.split('\n'):
-#     tab_splitted = r.split('\t')
-#     if tab_splitted[1] == '1':
-#         docs.append((tab_splitted[0], "pos"))
-#     else:
-#         docs.append((tab_splitted[0], "neg"))
-
-# DATASET 2
-# short reviews
-short_pos = open("data_sets/positive.txt", "r").read()
-short_neg = open("data_sets/negative.txt", "r").read()
-
-for r in short_pos.split('\n'):
-    docs.append((r, "pos"))
-
-for r in short_neg.split('\n'):
-    docs.append((r, "neg"))
 
 print("Total reviews for training: ", len(docs))
-# ---------------------------------------------------------
-# for w in movie_reviews.words():
-#     all_words.append(w.lower())
-
+# --------------------------------------------------------
 # pos tagging-----------------------------
 # allowed_word_types = ["J", "R", "V"]
-allowed_word_types = ["J"]
-
-for r in docs:
-    words = word_tokenize(r[0])
-    pos = nltk.pos_tag(words)
-    for w in pos:
-        if w[1][0] in allowed_word_types:
-            all_words.append(w[0].lower())
-
-# no pos tagging---------------------------
+# allowed_word_types = ["J"]
 
 # for r in docs:
 #     words = word_tokenize(r[0])
-#     for w in words:
-#         all_words.append(w.lower())
+#     pos = nltk.pos_tag(words)
+#     for w in pos:
+#         if w[1][0] in allowed_word_types:
+#             all_words.append(w[0].lower())
+
+# no pos tagging---------------------------
+
+for w in movie_reviews.words():
+    if not w in stopwords.words():
+        all_words.append(w.lower())
+# for w in movie_reviews.words():
+#     all_words.append(w.lower())
 
 all_words = nltk.FreqDist(all_words)
 print("most common words: ", all_words.most_common(10))
@@ -113,8 +85,8 @@ def find_features(doc):
 
 featuresets = [(find_features(rev), category) for (rev, category) in docs]
 random.shuffle(featuresets)
-training_set = featuresets[:10000]
-testing_set = featuresets[10000:]
+training_set = featuresets[:1900]
+testing_set = featuresets[1900:]
 
 
 # uncomment below line - Initial training

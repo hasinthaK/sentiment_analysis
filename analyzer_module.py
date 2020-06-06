@@ -72,8 +72,9 @@ def sentiment(review):
     feat = find_features(word_tokenize(cleaned_review))
     print(voted_classifier.classify(feat),
           voted_classifier.confidence(feat))
+    return voted_classifier.classify(feat), voted_classifier.confidence(feat)
 
 
-text = "Very nice one, Came very quickly, I recommend this seller & also the product, but the service was not the best!"
-# text = "only in its final surprising shots does rabbit-proof fence find the authority it's looking for . "
-sentiment(text)
+# text = "Very nice one, Came very quickly, I recommend this seller & also the product, but the service was not the best!"
+# text = "mazel tov to a film about a family's joyous life acting on the yiddish stage . "
+# sentiment(text)
