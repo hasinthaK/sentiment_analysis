@@ -1,20 +1,32 @@
 # Sentiment analysis
 
-Script should analyze given sentences & provide the calculated sentiment value for each,
-& then store in an excel file.
-
+Script analyzes given sentences & provide the calculated sentiment value,
+& then store in an excel file.  
 The initial data to be analyzed (sentences) are to be read from an excel file.
 
-```ml - Copy.xlsx```
+**All input file names must be exact same as denoted here**
 
-then the results should be like in the file,
+File name to be read:
+```ml - Copy.xlsx```    
+Note: This file should be in exact name & format internally to get the correct result.
 
-```xl_file_scored.xls```
+then the results are written to file:
+```ml_scored.xls```
 
+**Example files included**
 
-# Current working script
-```sentiment_intensity.py```
+## Working
 
-```emotions.txt``` & ```read.txt``` are not used in above script.
+1. run ```settings.py``` from ```/support``` directory.
+2. download all the nltk packages by selecting 'all' from the window.
+3. train the models using any of the desired trainers named as ```trainer#.py``` in the root directory.
+-- Note: All the trained modles will be saved as byte files in 'trained' directory.
+4. run ```main.py``` .
 
-### no any model is being trained manually, thus using SentimentIntensityAnalyzer from NLTK package.
+**Output will be written to a newly created file in the root directory as ```ml_scored.xls```**
+
+#
+**Current test results**
+
+*Best results were gained after using ```trainer2.py``` for initial training.   
+(Use trainer ```sentiment_intensity.py``` from 'alternate' directory if neither of ```trainer#.py``` outputs desired results.)

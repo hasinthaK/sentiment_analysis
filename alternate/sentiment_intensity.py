@@ -43,4 +43,4 @@ for i in range(sheet.nrows-1):
 
     analyze(cleaned_text, i+1)
 
-xl_file_scored.save("xl_file_scored.xls")
+xl_file_scored.save("ml_scored.xls")
